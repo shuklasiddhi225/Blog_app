@@ -16,6 +16,7 @@
     "ansi-styles": "^4.3.0",
     "at-least-node": "^1.0.0",
     "balanced-match": "^1.0.2",
+    "bcryptjs": "^3.0.2",
     "brace-expansion": "^1.1.11",
     "braces": "^3.0.3",
     "call-bind": "^1.0.8",
