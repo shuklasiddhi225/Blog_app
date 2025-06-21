@@ -1,11 +1,17 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from '../redux/user/userSlice';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -15,11 +21,10 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage('Please fill out all fields.');
+      return dispatch(signInFailure('Please fill all the fields'));
     }
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signInStart());
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,37 +32,32 @@ export default function SignIn() {
       });
       const data = await res.json();
       if (data.success === false) {
-        setLoading(false);
-        return setErrorMessage(data.message);
+        return dispatch(signInFailure(data.message));
       }
-      setLoading(false);
-      if (res.ok) {
-        navigate('/');
-      }
+      dispatch(signInSuccess(data));
+      navigate('/');
     } catch (error) {
-      setLoading(false);
-      setErrorMessage(error.message);
+      dispatch(signInFailure(error.message));
     }
   };
 
   return (
     <div className='min-h-screen mt-20'>
       <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
-        {/* Left section */}
+        {/* Left Section */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
             <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
-              Blog
-            </span>
-            Nest
+              Sahand's
+            </span>{' '}
+            Blog
           </Link>
           <p className='text-sm mt-5'>
-            This is a demo project. You can sign in with your email and password
-            or with Google.
+            This is a demo project. You can sign in with your email and password or with Google.
           </p>
         </div>
 
-        {/* Right section (form) */}
+        {/* Right Section (Form) */}
         <div className='flex-1'>
           <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
             <div>
@@ -73,7 +73,7 @@ export default function SignIn() {
               <Label value='Your password' />
               <TextInput
                 type='password'
-                placeholder='Password'
+                placeholder='**********'
                 id='password'
                 onChange={handleChange}
               />
@@ -82,8 +82,7 @@ export default function SignIn() {
             <Button
               type='submit'
               disabled={loading}
-              color='none'
-              className='w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium rounded-lg px-4 py-2 text-center hover:opacity-90 transition'
+              className='w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg px-4 py-2 text-center hover:opacity-90 transition disabled:opacity-70'
             >
               {loading ? (
                 <>
